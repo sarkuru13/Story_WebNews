@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive News Story</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="story-container">
+    <!-- Story Content -->
+    <div class="story">
+      <div class="text-overlay">
+        <h5 class="breaking-news">Breaking News</h5>
+        <h2 class="story-title">Headline of the News Story</h2>
+        <p class="story-description">This is the description of the news story. Swipe left or right to explore more stories.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail View Modal -->
+  <div class="detail-view">
+    <div class="detail-content">
+      <h2 class="detail-title">Full Story Title</h2>
+      <p class="detail-text">Full content of the news story goes here. This part will contain all the detailed information, images, or videos related to the story.</p>
+      <button class="back-to-story">Back to Story</button>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const stories = [
+      {
+        title: "Breaking News: Example Story 1",
+        description: "This is a short summary of the first news story. Swipe to explore more stories.",
+        image: "images/story1.jpg",
+        fullStory: "Full story content for story 1. More detailed information about the breaking news story goes here."
+      },
+      {
+        title: "Breaking News: Example Story 2",
+        description: "This is a short summary of the second news story. Swipe to explore more stories.",
+        image: "images/story2.jpg",
+        fullStory: "Full story content for story 2. More detailed information about the breaking news story goes here."
+      },
+      {
+        title: "Breaking News: Example Story 3",
+        description: "This is a short summary of the third news story. Swipe to explore more stories.",
+        image: "images/story3.jpg",
+        fullStory: "Full story content for story 3. More detailed information about the breaking news story goes here."
+      }
+    ];
+
+    let currentStoryIndex = 0;
+
+    const storyContainer = document.querySelector('.story-container');
+    const story = document.querySelector('.story');
+    const storyTitle = document.querySelector('.story-title');
+    const storyDescription = document.querySelector('.story-description');
+    const detailView = document.querySelector('.detail-view');
+    const detailTitle = document.querySelector('.detail-title');
+    const detailText = document.querySelector('.detail-text');
+    const backToStoryButton = document.querySelector('.back-to-story');
+
+    const updateStory = () => {
+      const storyData = stories[currentStoryIndex];
+      storyContainer.style.backgroundImage = `url(${storyData.image})`;
+      storyTitle.textContent = storyData.title;
+      storyDescription.textContent = storyData.description;
+    };
+
+    let startX = 0;
+    let startY = 0;
+
+    storyContainer.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    storyContainer.addEventListener('touchend', (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+
+      // Swipe Left/Right for changing story
+      if (Math.abs(startX - endX) > 50) {
+        if (startX - endX > 50 && currentStoryIndex < stories.length - 1) {
+          currentStoryIndex++;
+          updateStory();
+          animateSwipe('left');
+        } else if (endX - startX > 50 && currentStoryIndex > 0) {
+          currentStoryIndex--;
+          updateStory();
+          animateSwipe('right');
+        }
+      }
+
+      // Swipe Up for details
+      if (startY - endY > 50) {
+        showDetailView();
+      }
+
+      // Swipe Down for back to story
+      if (endY - startY > 50) {
+        hideDetailView();
+      }
+    });
+
+    const animateSwipe = (direction) => {
+      if (direction === 'left') {
+        story.style.transform = 'translateX(-100%)';
+        setTimeout(() => {
+          story.style.transition = 'none';
+          story.style.transform = 'translateX(100%)';
+          story.offsetHeight; // trigger reflow
+          story.style.transition = 'transform 0.5s ease-in-out';
+          story.style.transform = 'translateX(0)';
+        }, 300);
+      } else if (direction === 'right') {
+        story.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          story.style.transition = 'none';
+          story.style.transform = 'translateX(-100%)';
+          story.offsetHeight; // trigger reflow
+          story.style.transition = 'transform 0.5s ease-in-out';
+          story.style.transform = 'translateX(0)';
+        }, 300);
+      }
+    };
+
+    const showDetailView = () => {
+      const storyData = stories[currentStoryIndex];
+      detailView.style.display = 'block';
+      setTimeout(() => {
+        detailView.style.transform = 'translateY(0)';
+      }, 50);
+      detailTitle.textContent = storyData.title;
+      detailText.textContent = storyData.fullStory;
+    };
+
+    const hideDetailView = () => {
+      detailView.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        detailView.style.display = 'none';
+        detailView.style.transform = 'translateY(100%)'; // reset
+      }, 500);
+    };
+
+    backToStoryButton.addEventListener('click', hideDetailView);
+
+    updateStory();
+  </script>
+</body>
+</html>
